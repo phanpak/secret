@@ -18,7 +18,7 @@ type Vault struct {
 	mutex    sync.Mutex
 }
 
-func File(key string) *Vault {
+func File(key, filepath string) *Vault {
 	return &Vault{
 		EncKey:   key,
 		secrets:  make(map[string]string),

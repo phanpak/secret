@@ -6,6 +6,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var secretsPath = ".secrets.json"
+
 var RootCmd = cobra.Command{
 	Use:   "secret",
 	Short: "Secret manager",

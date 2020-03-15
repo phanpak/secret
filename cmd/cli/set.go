@@ -20,7 +20,7 @@ func init() {
 }
 
 func handle(args []string) {
-	vault := secret.File(encodingKey)
+	vault := secret.File(encodingKey, secretsPath)
 	key, value := args[0], args[1]
 	err := vault.Set(key, value)
 	if err != nil {

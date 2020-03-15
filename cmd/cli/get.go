@@ -21,7 +21,7 @@ func init() {
 }
 
 func get(args []string) {
-	vault := secret.File(encodingKey)
+	vault := secret.File(encodingKey, secretsPath)
 	key := args[0]
 	value, err := vault.Get(key)
 	if err != nil {
