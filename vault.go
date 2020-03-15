@@ -9,7 +9,7 @@ import (
 	"github.com/phanpak/secret/encrypt"
 )
 
-var filepath = "secrets.json"
+var filepath = ".secrets.json"
 
 type Vault struct {
 	EncKey   string
