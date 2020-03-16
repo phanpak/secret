@@ -26,6 +26,52 @@ func File(key, filepath string) *Vault {
 	}
 }
 
+func (v *Vault) Set(key, value string) error {
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
+	err := v.load()
+	if err != nil {
+		return err
+	}
+	_, ok := v.secrets[key]
+	if ok {
+		return fmt.Errorf("the key \"%s\" is already in the vault", key)
+
+	}
+	encryptedValue, err := encrypt.Encrypt(v.EncKey, value)
+	if err != nil {
+		return err
+	}
+
+	v.secrets[key] = encryptedValue
+	err = v.save()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (v *Vault) Get(key string) (string, error) {
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
+	err := v.load()
+	if err != nil {
+		return "", err
+	}
+	cipherHex, ok := v.secrets[key]
+
+	if !ok {
+		return "", fmt.Errorf("There is no key \"%s\" in the vault", key)
+	}
+
+	value, err := encrypt.Decrypt(v.EncKey, cipherHex)
+	if err != nil {
+		return "", nil
+	}
+
+	return value, nil
+}
+
 func (v *Vault) load() error {
 	file, err := os.Open(v.filepath)
 	if err != nil {
@@ -71,51 +117,4 @@ func (v *Vault) save() error {
 		return err
 	}
 	return nil
-}
-
-func (v *Vault) Set(key, value string) error {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
-	err := v.load()
-	if err != nil {
-		return err
-	}
-	_, ok := v.secrets[key]
-	if ok {
-		return fmt.Errorf("the key \"%s\" is already in the vault", key)
-
-	}
-	encryptedValue, err := encrypt.Encrypt(v.EncKey, value)
-	if err != nil {
-		return err
-	}
-
-	v.secrets[key] = encryptedValue
-	err = v.save()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (v *Vault) Get(key string) (string, error) {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
-	err := v.load()
-	if err != nil {
-		return "", err
-	}
-	cipherHex, ok := v.secrets[key]
-
-	if !ok {
-		return "", fmt.Errorf("There is no key \"%s\" in the vault", key)
-	}
-
-	// value, err := encrypt.Decrypt(v.EncKey, cipherHex)
-	value, err := encrypt.Decrypt(v.EncKey, cipherHex)
-	if err != nil {
-		return "", nil
-	}
-
-	return value, nil
 }
